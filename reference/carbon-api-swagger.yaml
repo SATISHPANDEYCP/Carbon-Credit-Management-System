@@ -1,0 +1,330 @@
+openapi: 3.0.0
+info:
+  title: Carbon Credit Management API
+  version: 1.0.0
+  description: API for managing carbon credits - measure, reduce, offset, and share
+
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        carbon_balance:
+          type: number
+          
+    MeasureActivity:
+      type: object
+      required:
+        - activity_type
+        - quantity
+        - unit
+      properties:
+        activity_type:
+          type: string
+          enum: [transport, electricity, waste, manufacturing]
+        quantity:
+          type: number
+        unit:
+          type: string
+          enum: [km, kwh, kg, liters]
+        vehicle_type:
+          type: string
+          enum: [car, bus, train, flight]
+        description:
+          type: string
+          
+    ReduceAction:
+      type: object
+      required:
+        - action_type
+        - impact
+      properties:
+        action_type:
+          type: string
+          enum: [solar_installation, tree_planting, recycling, energy_efficiency]
+        impact:
+          type: number
+        unit:
+          type: string
+          default: kg_co2
+        description:
+          type: string
+          
+    OffsetPurchase:
+      type: object
+      required:
+        - credit_amount
+        - project_id
+      properties:
+        credit_amount:
+          type: number
+        project_id:
+          type: string
+        price:
+          type: number
+          
+    ShareCredits:
+      type: object
+      required:
+        - recipient_email
+        - credit_amount
+      properties:
+        recipient_email:
+          type: string
+        credit_amount:
+          type: number
+        message:
+          type: string
+
+paths:
+  /auth/register:
+    post:
+      summary: Register new user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+      responses:
+        201:
+          description: User created successfully
+        400:
+          description: Bad request
+
+  /auth/login:
+    post:
+      summary: Login user
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+  /carbon/measure:
+    post:
+      summary: Record carbon emission activity
+      tags: [Carbon Operations]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeasureActivity'
+      responses:
+        201:
+          description: Activity recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  co2_generated:
+                    type: number
+                  timestamp:
+                    type: string
+    
+    get:
+      summary: Get user's carbon emission history
+      tags: [Carbon Operations]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from_date
+          in: query
+          schema:
+            type: string
+        - name: to_date
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: Emission history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /carbon/reduce:
+    post:
+      summary: Record carbon reduction action
+      tags: [Carbon Operations]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReduceAction'
+      responses:
+        201:
+          description: Reduction action recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  credits_earned:
+                    type: number
+                  new_balance:
+                    type: number
+
+  /carbon/offset:
+    post:
+      summary: Purchase carbon offset credits
+      tags: [Carbon Operations]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OffsetPurchase'
+      responses:
+        201:
+          description: Offset purchase successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction_id:
+                    type: string
+                  credits_purchased:
+                    type: number
+                  total_cost:
+                    type: number
+                  new_balance:
+                    type: number
+
+  /carbon/offset/projects:
+    get:
+      summary: Get available offset projects
+      tags: [Carbon Operations]
+      responses:
+        200:
+          description: List of offset projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    price_per_credit:
+                      type: number
+                    location:
+                      type: string
+
+  /carbon/share:
+    post:
+      summary: Share carbon credits with another user
+      tags: [Carbon Operations]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareCredits'
+      responses:
+        201:
+          description: Credits shared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transaction_id:
+                    type: string
+                  credits_shared:
+                    type: number
+                  new_balance:
+                    type: number
+
+  /dashboard/summary:
+    get:
+      summary: Get user dashboard summary
+      tags: [Dashboard]
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_balance:
+                    type: number
+                  total_emissions:
+                    type: number
+                  total_reductions:
+                    type: number
+                  total_offsets:
+                    type: number
+                  recent_activities:
+                    type: array
+                    items:
+                      type: object

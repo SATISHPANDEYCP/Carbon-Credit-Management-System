@@ -1,0 +1,155 @@
+Don't go silent on me. If I've given you this task, I expect to hear from you. Not once at the end — throughout. Write me emails. Frequently. Think of it like we're having a conversation over email.
+
+You can do it however feels natural to you — write me when you start something and when you finish it, or send daily updates, or write me every time you learn something new or get stuck. Whatever works. Even if it's just:
+
+"Hey Sumit, spent 2 hours today. Got Jenkins installed. Took me a while because Java version was wrong. Now figuring out how to connect it to GitHub. Will continue tomorrow."
+
+That's enough. I'm not expecting essays. I just want to know what's happening. If you go quiet for 3-4 days and then dump everything at the end, that tells me you're not actually working through it — or you're not comfortable communicating, which is just as important a skill as the technical stuff. Real engineering teams talk to each other every day. Stand-ups, Slack messages, quick updates. This is practice for that.
+
+So keep me in the loop. Now, here's the task:
+
+
+Build a working CI/CD pipeline using Jenkins on AWS.
+
+Here's what the end result should look like:
+
+1. Task: Build a Carbon Credit Management System 
+Carbon-CreditManagementSystem-4thAugust2025.pdf (attached)
+Reference: Architecture diagram showing blockchain-enabled carbon offsetting
+
+API Specification: - carbon-api-swagger.yaml
+See the attached OpenAPI/Swagger specification for complete API details. Key endpoints include:
+- Authentication (register/login)
+- Carbon measurement tracking
+- Reduction activities logging
+- Offset credit purchases
+- Credit sharing between users
+- Dashboard summaries
+
+Sample UI: - carbon-credit-ui-4Aug2025.html (open in any browser and click thorugh)
+Refer to the provided HTML file showing:
+- Login page
+- Dashboard with credit balance
+- Quick action buttons
+- Transaction history
+- Statistics overview
+
+Database Schema: - carbon-database-schema.sql
+PostgreSQL schema provided (MongoDB alternative included as comments). Tables include:
+- users (with carbon_balance)
+- carbon_activities (emissions tracking)
+- carbon_reductions (positive actions)
+- offset_projects (available for purchase)
+- transactions (all credit movements)
+- audit_log (for compliance)
+
+Note: Start with basic CRUD operations, then add business logic for carbon calculations.
+
+Core Requirements:
+- REST APIs for carbon credit operations (measure, reduce, offset, share)
+- User authentication and management
+- Dashboard showing carbon credits and transactions
+- Mock blockchain integration (no real blockchain needed)
+- OpenAPI/Swagger documentation
+- Docker setup
+- Proper Git workflow:
+  * feat: add carbon credit measurement API
+  * fix: resolve credit calculation logic
+  * docs: add carbon offset flow documentation
+- Create mock data for different carbon activities
+
+Note: Focus on the core business logic, not blockchain complexity. Use a regular database to simulate blockchain storage.
+
+Approach:
+Build what you can in the time available. Use any tech stack you're comfortable with. Feel free to use AI tools - just ensure you understand the code.
+
+Deliverables:
+- GitHub repository with proper commit history
+- README explaining setup and architecture
+- Short video demo
+- Swagger UI accessible
+
+2. Your repo must have a proper README.md — not a one-liner. It should explain what the project is, how to set it up, what tools are used, and how the pipeline works. Write it like someone else will read it and need to understand your project without asking you. - http://github.com/
+
+3. Launch an EC2 instance on AWS, install Jenkins on it, and access the Jenkins dashboard from your browser. Official Jenkins documentation: https://www.jenkins.io/doc/book/
+
+4. Set up a Jenkins pipeline (using a Jenkinsfile in your repo) that:
+   - Pulls your code from GitHub
+   - Runs at least one test (e.g., checks if index.html exists and is valid)
+   - Deploys it to a web server on the same EC2
+
+5. Your Carbon Credit Management System  must be live and accessible — anyone with the URL (your EC2 public IP or a domain) should be able to see it in their browser.
+
+6. Now prove CI/CD actually works:
+   - Create a new branch in your GitHub repo
+   - Make a visible change to your Carbon Credit Management System  (e.g., change heading text, add a new section)
+   - Open a Pull Request from that branch to main
+   - Merge the Pull Request
+   - Trigger the Jenkins pipeline (manually or via webhook)
+   - The live Carbon Credit Management System  should now show your updated changes
+
+That's the flow: Code change → Branch → Pull Request → Merge → Jenkins runs → Carbon Credit Management System  manager updates automatically.
+
+7. Commit messages must follow a structure. Not "update" or "fixed stuff". Use this format:
+   type: short description
+   Examples:
+   feat: add ec2 cost section to cost manager
+   fix: correct navbar alignment on mobile
+   chore: update Jenkinsfile deploy stage
+   docs: add setup instructions to README
+
+   Types: feat, fix, chore, docs, style, refactor, test
+   Every commit in your repo will be checked.
+
+8. Create an architecture diagram using draw.io (or any diagramming tool) that shows the end-to-end flow of your system. This is not optional. I want to see that you understand how data moves — from your code on GitHub, to Jenkins, to EC2, to the browser. Show every step: where the code lives, how Jenkins pulls it, where it gets deployed, how a user's browser reaches it, what role ports/IPs/DNS play in this. Think of it as a map of your entire system. If you can't draw it, you don't understand it.
+
+IMPORTANT — Know your terms:
+
+Throughout this exercise you'll encounter many terms — HTTP, HTTPS, IP address, port, DNS, EC2, SSH, security group, Nginx, pipeline, webhook, branch, pull request, merge, and more.
+
+Do NOT just use them. Understand them. Think of it like a car mechanic — a mechanic doesn't just know the word "alternator." They know what it does, where it sits in the engine, what happens when it fails, and how it connects to the battery and electrical system.
+
+Same applies here. If you're opening port 8080, you should know: What is a port? Why 8080 and not some other number? What is a security group and why does it control this? If your site runs on HTTP, you should know: What is HTTP? How is it different from HTTPS? Why does it matter? If you type an IP address in the browser, you should know: What is an IP address? Why does EC2 have a public one and a private one? What happens if the instance restarts — does the IP change?
+
+We will ask you about these things. Not textbook definitions — practical understanding. Like: "Your Jenkins is on port 8080 and your Carbon Credit Management System  is on port 80 — why different ports? What would happen if both tried to use port 80?"
+
+Build that understanding as you go. Every time you hit a new term, stop for 2 minutes and actually understand what it does and why it exists.
+
+IMPORTANT — Keep me updated as you go:
+
+Like I said at the top — don't disappear. Here's what good updates look like:
+
+"Day 1: Started studying how Jenkins works. Reading the official docs. Trying to understand the difference between freestyle projects and pipelines. I think pipeline is better because the Jenkinsfile lives in the repo with the code, so everything is version controlled. Going to try launching EC2 next."
+
+"Day 2: EC2 is running. Spent 1 hour figuring out SSH/AWS Command Lines — kept getting permission denied. Turned out my key file permissions were wrong. Now inside the server. Installing Jenkins. Also reading about Nginx vs Apache — going with Nginx because it seems lighter and most tutorials use it."
+
+"Day 3: Jenkins is up but pipeline is failing at deploy stage. Getting permission error. Researching Linux file permissions and sudoers. Also started making my architecture diagram in draw.io — realized I didn't fully understand how the browser request actually reaches my EC2, so I'm reading about how IP addresses and ports work before continuing."
+
+"Day 4: Stuck on webhooks. Not sure if I need a public URL for Jenkins to receive GitHub notifications. Trying a few things. If I can't figure it out by tomorrow, I'll ask."
+
+This is what real engineers do — they communicate progress, blockers, and thinking. It helps me understand where you are so I can guide you if needed.
+
+If you're genuinely stuck after trying hard, ask me. But try first. Really try. Google it, read docs, try different things, read the error messages carefully. Come to me with "I tried X, Y, and Z, here's the error, here's what I think the problem is" — not just "it's not working."
+
+What to submit (final):
+- Screen recording of the full process — from launching EC2 to the final updated Carbon Credit Management System  tool. Talk through what you're doing and why.
+- GitHub repo link (public) — we should be able to see your code, Jenkinsfile, README, branches, commit history (with proper messages), and merged PR
+- Live Carbon Credit Management System  URL (EC2 IP or domain)
+- Architecture diagram (draw.io or similar) showing the full flow
+- Screenshot: Jenkins dashboard showing successful pipeline stages (green)
+- Screenshot: Your Carbon Credit Management System  BEFORE the change
+- Screenshot: Your Carbon Credit Management System  AFTER the PR merge and pipeline re-run (proving CI/CD works)
+- Short write-up: What problems did you face? How did you debug them? What did you learn that you didn't know before?
+You don't have to follow my instructions word for word. Feel free to change the steps, the deliverables, or the approach — whatever makes sense to you. I'm giving you the big picture of what needs to get done. How you get there is up to you.
+
+
+Three things to keep in mind:
+- Terminate your EC2 instance after we confirm we've reviewed it, or AWS will charge you real money
+- Don't blindly copy-paste commands from a blog without understanding what they do — we will ask you to explain
+- If something breaks (and it will), that's fine. Show us how you fixed it. Debugging is the skill we're testing as much as building.
+
+As you work through this, make sure you actually understand every term you come across. For example, if you see HTTP — don't just move past it. Look it up. HTTP stands for Hypertext Transfer Protocol. Then go deeper: Why was it created? Why does every browser use it? What is an RFC? Why does HTTP only have specific methods like GET and POST? Who designed it and when? Do this for every new term you encounter. That curiosity is what separates someone who can do the work from someone who just follows instructions.
+
+Use whatever resources you need — Google, YouTube, AWS docs, Stack Overflow, ChatGPT. Real engineers use all of these. What matters is that YOU understand what you built and can explain it.
+
+Good luck
