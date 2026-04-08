@@ -39,6 +39,21 @@ const userSchema = new mongoose.Schema({
     default: null,
     select: false
   },
+  otp_last_sent_at: {
+    type: Date,
+    default: null,
+    select: false
+  },
+  otp_request_count: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  otp_request_window_started_at: {
+    type: Date,
+    default: null,
+    select: false
+  },
   created_at: {
     type: Date,
     default: Date.now

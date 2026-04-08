@@ -9,6 +9,9 @@ const generateToken = (userId) => {
 };
 
 const OTP_TTL_MS = 10 * 60 * 1000;
+const OTP_RESEND_COOLDOWN_MS = Number(process.env.OTP_RESEND_COOLDOWN_MS || 60 * 1000);
+const OTP_REQUEST_WINDOW_MS = Number(process.env.OTP_REQUEST_WINDOW_MS || 2 * 60 * 60 * 1000);
+const OTP_MAX_REQUESTS_PER_WINDOW = Number(process.env.OTP_MAX_REQUESTS_PER_WINDOW || 10);
 
 const hashOtp = (otp) => {
   return crypto.createHash('sha256').update(otp).digest('hex');
@@ -134,17 +137,64 @@ export const sendOtp = async (req, res) => {
     const { email } = req.body;
     const trimmedEmail = email?.trim().toLowerCase();
 
-    const user = await User.findOne({ email: trimmedEmail }).select('+otp_code_hash +otp_expires_at');
+    const user = await User.findOne({ email: trimmedEmail }).select('+otp_code_hash +otp_expires_at +otp_last_sent_at +otp_request_count +otp_request_window_started_at');
     if (!user) {
       return res.status(404).json({ message: 'User not found. Please register first.' });
     }
 
+    const now = new Date();
+    if (
+      !user.otp_request_window_started_at ||
+      now.getTime() - user.otp_request_window_started_at.getTime() >= OTP_REQUEST_WINDOW_MS
+    ) {
+      user.otp_request_window_started_at = now;
+      user.otp_request_count = 0;
+    }
+
+    if (user.otp_request_count >= OTP_MAX_REQUESTS_PER_WINDOW) {
+      const elapsedInWindow = now.getTime() - user.otp_request_window_started_at.getTime();
+      const retryAfterSec = Math.ceil((OTP_REQUEST_WINDOW_MS - elapsedInWindow) / 1000);
+      return res.status(429).json({
+        message: `OTP request limit reached. Try again in ${retryAfterSec}s.`,
+        retryAfterSec
+      });
+    }
+
+    if (user.otp_last_sent_at) {
+      const elapsedMs = now.getTime() - user.otp_last_sent_at.getTime();
+      if (elapsedMs < OTP_RESEND_COOLDOWN_MS) {
+        const retryAfterSec = Math.ceil((OTP_RESEND_COOLDOWN_MS - elapsedMs) / 1000);
+        return res.status(429).json({
+          message: `Please wait ${retryAfterSec}s before requesting OTP again.`,
+          retryAfterSec
+        });
+      }
+    }
+
     const otpCode = generateOtp();
+    const previousOtpCodeHash = user.otp_code_hash;
+    const previousOtpExpiresAt = user.otp_expires_at;
+    const previousOtpLastSentAt = user.otp_last_sent_at;
+    const previousOtpRequestCount = user.otp_request_count;
+    const previousOtpRequestWindowStartedAt = user.otp_request_window_started_at;
+
     user.otp_code_hash = hashOtp(otpCode);
     user.otp_expires_at = new Date(Date.now() + OTP_TTL_MS);
+    user.otp_last_sent_at = now;
+    user.otp_request_count += 1;
     await user.save();
 
-    await sendOtpEmail({ toEmail: user.email, otpCode });
+    try {
+      await sendOtpEmail({ toEmail: user.email, otpCode });
+    } catch (mailError) {
+      user.otp_code_hash = previousOtpCodeHash;
+      user.otp_expires_at = previousOtpExpiresAt;
+      user.otp_last_sent_at = previousOtpLastSentAt;
+      user.otp_request_count = previousOtpRequestCount;
+      user.otp_request_window_started_at = previousOtpRequestWindowStartedAt;
+      await user.save();
+      throw mailError;
+    }
 
     await AuditLog.create({
       user_id: user._id,

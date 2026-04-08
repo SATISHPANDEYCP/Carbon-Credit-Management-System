@@ -25,7 +25,7 @@ This system helps individuals and organizations manage their carbon footprint:
 - Node.js + Express.js
 - MongoDB with Mongoose
 - JWT authentication
-- bcryptjs for password security
+- Google Gmail API for OTP delivery
 
 ## How to Use
 
@@ -42,7 +42,8 @@ All endpoints are prefixed with `/api`
 
 **Authentication (Public)**
 - `POST /auth/register` - Create a new account
-- `POST /auth/login` - Login and get JWT token
+- `POST /auth/send-otp` - Send login OTP to user email
+- `POST /auth/login` - Verify OTP and get JWT token
 
 **Carbon Operations (Requires Login)**
 - `POST /carbon/measure` - Record a carbon emission activity
@@ -153,6 +154,15 @@ PORT=5000
 MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/carbon-credit-db
 JWT_SECRET=your-secret-key-here
 NODE_ENV=development
+EMAIL_FROM=Carbon Credit Support <your@gmail.com>
+EMAIL=your@gmail.com
+CLIENT_ID=your-google-client-id
+CLIENT_SECRET=your-google-client-secret
+REFRESH_TOKEN=your-google-refresh-token
+CORS_ORIGINS=http://localhost:5173,https://your-app.vercel.app
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=300
+OTP_RESEND_COOLDOWN_MS=60000
 ```
 
 **Frontend (.env in frontend/ folder)**
@@ -162,12 +172,14 @@ VITE_API_URL=http://localhost:5000/api
 
 ## Security Features
 
-- Passwords are hashed using bcryptjs before storing
+- Email OTP-based login with hashed OTP storage
 - JWT tokens for secure authentication
 - Protected routes on both frontend and backend
 - Input validation on all API endpoints
 - Audit logging tracks all sensitive operations
-- CORS configured to allow only trusted origins
+- CORS can be restricted via `CORS_ORIGINS`
+- Security headers enabled via `helmet`
+- Global API rate limiting enabled
 
 ## Project Structure
 

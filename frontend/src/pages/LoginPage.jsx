@@ -53,8 +53,9 @@ const LoginPage = () => {
       try {
         await requestOtp({ isAuto: true });
       } catch (err) {
-        setError(err.response?.data?.message || 'Auto resend failed. Trying again in 1 minute.');
-        setCooldown(OTP_RESEND_SECONDS);
+        const retryAfterSec = Number(err.response?.data?.retryAfterSec || OTP_RESEND_SECONDS);
+        setError(err.response?.data?.message || 'Auto resend failed. Trying again later.');
+        setCooldown(retryAfterSec > 0 ? retryAfterSec : OTP_RESEND_SECONDS);
       } finally {
         setAutoResending(false);
       }
