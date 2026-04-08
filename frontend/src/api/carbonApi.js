@@ -5,14 +5,6 @@ export const measureEmission = async (data) => {
   return response.data;
 };
 
-export const getEmissionHistory = async (fromDate, toDate) => {
-  const params = {};
-  if (fromDate) params.from_date = fromDate;
-  if (toDate) params.to_date = toDate;
-  const response = await axiosInstance.get('/carbon/measure', { params });
-  return response.data;
-};
-
 export const logReduction = async (data) => {
   const response = await axiosInstance.post('/carbon/reduce', data);
   return response.data;

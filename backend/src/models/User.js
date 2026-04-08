@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -9,19 +8,36 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6
-  },
   name: {
     type: String,
     required: true,
     trim: true
   },
+  address: {
+    country: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true
+    }
+  },
   carbon_balance: {
     type: Number,
     default: 0
+  },
+  otp_code_hash: {
+    type: String,
+    default: null,
+    select: false
+  },
+  otp_expires_at: {
+    type: Date,
+    default: null,
+    select: false
   },
   created_at: {
     type: Date,
@@ -32,19 +48,6 @@ const userSchema = new mongoose.Schema({
     default: Date.now
   }
 });
-
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    return next();
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
-
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
 
 userSchema.pre('findOneAndUpdate', function(next) {
   this.set({ updated_at: Date.now() });

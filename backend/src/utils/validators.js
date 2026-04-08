@@ -2,13 +2,18 @@ import { body, validationResult } from 'express-validator';
 
 export const validateRegister = [
   body('email').isEmail().normalizeEmail().withMessage('Please enter a valid email'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('name').trim().notEmpty().withMessage('Name is required')
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('country').trim().notEmpty().withMessage('Country is required'),
+  body('city').trim().notEmpty().withMessage('City is required')
+];
+
+export const validateSendOtp = [
+  body('email').isEmail().normalizeEmail().withMessage('Please enter a valid email'),
 ];
 
 export const validateLogin = [
   body('email').isEmail().normalizeEmail().withMessage('Please enter a valid email'),
-  body('password').notEmpty().withMessage('Password is required')
+  body('otp').isLength({ min: 6, max: 6 }).isNumeric().withMessage('OTP must be a 6-digit number')
 ];
 
 export const validateMeasure = [

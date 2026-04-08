@@ -64,16 +64,41 @@ const seedData = async () => {
     await OffsetProject.insertMany(projects);
     console.log('Seeded 5 offset projects successfully');
 
+    const passwordCleanup = await User.updateMany(
+      { password: { $exists: true } },
+      { $unset: { password: '' } }
+    );
+    console.log('Removed legacy password field from users:', passwordCleanup.modifiedCount || 0);
+
+    const addressBackfill = await User.updateMany(
+      {
+        $or: [
+          { 'address.country': { $exists: false } },
+          { 'address.city': { $exists: false } }
+        ]
+      },
+      {
+        $set: {
+          'address.country': 'Unknown',
+          'address.city': 'Unknown'
+        }
+      }
+    );
+    console.log('Backfilled missing user address fields:', addressBackfill.modifiedCount || 0);
+
     const existingUser = await User.findOne({ email: 'demo@carbon.com' });
     if (!existingUser) {
       const demoUser = new User({
         email: 'demo@carbon.com',
-        password: 'password123',
         name: 'Demo User',
+        address: {
+          country: 'India',
+          city: 'Delhi'
+        },
         carbon_balance: 2450
       });
       await demoUser.save();
-      console.log('Created demo user: demo@carbon.com / password123');
+      console.log('Created demo user: demo@carbon.com');
     } else {
       console.log('Demo user already exists');
     }

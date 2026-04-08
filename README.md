@@ -27,11 +27,6 @@ This system helps individuals and organizations manage their carbon footprint:
 - JWT authentication
 - bcryptjs for password security
 
-**DevOps**
-- Docker + Docker Compose
-- Jenkins CI/CD pipeline
-- Nginx reverse proxy
-
 ## How to Use
 
 1. Open `http://localhost:5173` in your browser
@@ -120,29 +115,14 @@ Try this flow to see everything in action:
 
 ## Deployment
 
-### Using Docker
+### Deploying on Render
 
-```bash
-docker-compose up --build
-```
-
-### CI/CD with Jenkins
-
-The `Jenkinsfile` in this repo sets up automated deployment:
-1. Pulls code from GitHub when you push changes
-2. Runs tests to verify everything works
-3. Builds Docker images
-4. Deploys to your server
-
-### Manual Deployment on AWS EC2
-
-1. Launch an EC2 instance and SSH into it
-2. Install Node.js, MongoDB, and Nginx
-3. Clone this repository
-4. Set up environment variables
-5. Build the frontend: `cd frontend && npm run build`
-6. Use PM2 to run the backend: `pm2 start backend/server.js`
-7. Configure Nginx to serve the frontend and proxy API requests
+1. Create a backend web service from the `backend/` folder.
+2. Set backend environment variables in Render: `PORT`, `MONGO_URI`, `JWT_SECRET`, and `NODE_ENV`.
+3. Create a frontend static site from the `frontend/` folder.
+4. Set `VITE_API_URL` in the frontend service to your backend API URL.
+5. Use MongoDB Atlas or another hosted MongoDB instance for the database.
+6. Deploy both services from the main branch.
 
 ## Git Commit Guidelines
 
@@ -214,9 +194,6 @@ carbon-credit-management-system/
 │   │   ├── App.jsx            # Main app component
 │   │   └── main.jsx           # Entry point
 │   └── index.html
-├── docker-compose.yml          # Docker orchestration
-├── Jenkinsfile                 # CI/CD pipeline
-├── nginx.conf                  # Web server config
 └── README.md                   # You are here
 ```
 
