@@ -9,7 +9,7 @@ const generateToken = (userId) => {
 };
 
 const OTP_TTL_MS = 10 * 60 * 1000;
-const OTP_RESEND_COOLDOWN_MS = Number(process.env.OTP_RESEND_COOLDOWN_MS || 60 * 1000);
+const OTP_RESEND_COOLDOWN_MS = Number(process.env.OTP_RESEND_COOLDOWN_MS || 10 * 60 * 1000);
 const OTP_REQUEST_WINDOW_MS = Number(process.env.OTP_REQUEST_WINDOW_MS || 2 * 60 * 60 * 1000);
 const OTP_MAX_REQUESTS_PER_WINDOW = Number(process.env.OTP_MAX_REQUESTS_PER_WINDOW || 10);
 

@@ -5,7 +5,7 @@ import { login as loginApi, sendOtp as sendOtpApi } from '../api/authApi';
 import '../styles/auth.css';
 
 const LoginPage = () => {
-  const OTP_RESEND_SECONDS = 60;
+  const OTP_RESEND_SECONDS = 600;
   const [email, setEmail] = useState('demo@carbon.com');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
